@@ -12,11 +12,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QTimer
 import CFG_to_PDA
+import NFA_and_ENFA_to_DFA
 
 import graphviz
 
 global Epsilon_NFA_flag
 Epsilon_NFA_flag = 0
+
 
 class Ui_FirstWindow(object):
     def setupUi(self, MainWindow):
@@ -73,6 +75,7 @@ class Ui_FirstWindow(object):
         self.ui.setupUi(self.w)
         self.w.show()
         MainWindow.close()
+
 
 class Ui_PDAscreen(object):
     def setupUi(self, MainWindow):
@@ -267,7 +270,6 @@ class Ui_PDAscreen(object):
     start_symbol = ''
     symbol_set_flag = 0
 
-
     def showError(self, err_msg, extra=""):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Error")
@@ -279,27 +281,27 @@ class Ui_PDAscreen(object):
 
     def addRule(self, rule):
         self.rules.append(rule)
-        self.rulesLabel.setText(self.rulesLabel.text()+rule+"\n")
+        self.rulesLabel.setText(self.rulesLabel.text() + rule + "\n")
         self.rulesLabel.update()
         print(self.rules)
 
-    def add_nonterm_userdef(self,definition):
+    def add_nonterm_userdef(self, definition):
         self.nonterm_userdef.append(definition)
-        self.nonTermDeflbl.setText(self.nonTermDeflbl.text()+definition+" ")
+        self.nonTermDeflbl.setText(self.nonTermDeflbl.text() + definition + " ")
         self.nonTermDeflbl.update()
         print(self.nonterm_userdef)
 
-    def add_term_userdef(self,definition):
+    def add_term_userdef(self, definition):
         self.term_userdef.append(definition)
-        self.TermDeflbl.setText(self.TermDeflbl.text()+definition+" ")
+        self.TermDeflbl.setText(self.TermDeflbl.text() + definition + " ")
         self.TermDeflbl.update()
         print(self.term_userdef)
 
-    def set_start_symbol(self,symbol):
+    def set_start_symbol(self, symbol):
         if self.symbol_set_flag == 0:
             self.start_symbol = symbol
             self.symbol_set_flag = 1
-            self.startlbl.setText(self.startlbl.text()+symbol)
+            self.startlbl.setText(self.startlbl.text() + symbol)
             print(self.start_symbol)
         else:
             self.showError("start symbol already set")
@@ -312,7 +314,7 @@ class Ui_PDAscreen(object):
             for tran in CFG_to_PDA.transitions:
                 print("loop entered")
                 for n in CFG_to_PDA.transitions[tran]:
-                    PDA_graph.edge(''+tran[0],''+n[2],label=''+tran[1]+','+n[0]+'->'+n[1])
+                    PDA_graph.edge('' + tran[0], '' + n[2], label='' + tran[1] + ',' + n[0] + '->' + n[1])
                     print(PDA_graph)
 
             PDA_graph.render(directory='PDA', view=True).replace('\\', '/')
@@ -504,7 +506,8 @@ class Ui_MainWindow(object):
         self.pushButton_2 = QtWidgets.QPushButton(self.frame)
         self.pushButton_2.setGeometry(QtCore.QRect(50, 330, 211, 41))
         self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_2.clicked.connect(lambda: self.addTransition(self.lineEdit_2.text(),self.lineEdit_3.text(),self.lineEdit_4.text()))
+        self.pushButton_2.clicked.connect(
+            lambda: self.addTransition(self.lineEdit_2.text(), self.lineEdit_3.text(), self.lineEdit_4.text()))
 
         self.line_5 = QtWidgets.QFrame(self.frame)
         self.line_5.setGeometry(QtCore.QRect(0, 380, 321, 16))
@@ -522,7 +525,7 @@ class Ui_MainWindow(object):
         self.label_7.setObjectName("label_7")
 
         self.startStateIN = QtWidgets.QLineEdit(self.frame)
-        self.startStateIN.setGeometry(QtCore.QRect(140, 400, 121, 31))
+        self.startStateIN.setGeometry(QtCore.QRect(100, 400, 121, 31))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.startStateIN.setFont(font)
@@ -530,19 +533,19 @@ class Ui_MainWindow(object):
         self.startStateIN.setObjectName("startStateIN")
 
         self.StartStateButton = QtWidgets.QPushButton(self.frame)
-        self.StartStateButton.setGeometry(QtCore.QRect(50, 450, 211, 41))
+        self.StartStateButton.setGeometry(QtCore.QRect(230, 400, 70, 31))
         self.StartStateButton.setObjectName("StartStateButton")
-        #self.StartStateButton.clicked.connect()
+        self.StartStateButton.clicked.connect(lambda: self.set_start_state(self.startStateIN.text()))
 
         self.label_8 = QtWidgets.QLabel(self.frame)
-        self.label_8.setGeometry(QtCore.QRect(10, 550, 101, 31))
+        self.label_8.setGeometry(QtCore.QRect(10, 440, 101, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.label_8.setFont(font)
         self.label_8.setObjectName("label_8")
 
         self.FinalStateIN = QtWidgets.QLineEdit(self.frame)
-        self.FinalStateIN.setGeometry(QtCore.QRect(140, 550, 121, 31))
+        self.FinalStateIN.setGeometry(QtCore.QRect(100, 440, 121, 31))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.FinalStateIN.setFont(font)
@@ -550,9 +553,51 @@ class Ui_MainWindow(object):
         self.FinalStateIN.setObjectName("FinalStateIN")
 
         self.FinalStateButton = QtWidgets.QPushButton(self.frame)
-        self.FinalStateButton.setGeometry(QtCore.QRect(50, 600, 211, 41))
+        self.FinalStateButton.setGeometry(QtCore.QRect(230, 440, 70, 31))
         self.FinalStateButton.setObjectName("FinalStateButton")
-        # self.StartStateButton.clicked.connect()
+        self.FinalStateButton.clicked.connect(lambda: self.set_final_state(self.FinalStateIN.text()))
+
+        self.alphalbl = QtWidgets.QLabel(self.frame)
+        self.alphalbl.setGeometry(QtCore.QRect(10, 480, 101, 31))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.alphalbl.setFont(font)
+        self.alphalbl.setText("Set Alpha:")
+        self.alphalbl.setObjectName("label_8")
+
+        self.alphaIN = QtWidgets.QLineEdit(self.frame)
+        self.alphaIN.setGeometry(QtCore.QRect(100, 480, 121, 31))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.alphaIN.setFont(font)
+        self.alphaIN.setText("")
+        self.alphaIN.setObjectName("alphaIN")
+
+        self.setAlphaButton = QtWidgets.QPushButton(self.frame)
+        self.setAlphaButton.setGeometry(QtCore.QRect(230, 480, 70, 31))
+        self.setAlphaButton.setObjectName("setAlphaButton")
+        self.setAlphaButton.setText("set")
+        self.setAlphaButton.clicked.connect(lambda: self.set_alpha(self.alphaIN.text()))
+
+        self.NFAstartlbl = QtWidgets.QLabel(self.frame)
+        self.NFAstartlbl.setGeometry(QtCore.QRect(10, 520, 300, 31))
+        self.NFAstartlbl.setText("NFA start state: ")
+
+        self.NFAfinallbl = QtWidgets.QLabel(self.frame)
+        self.NFAfinallbl.setGeometry(QtCore.QRect(10, 540, 300, 31))
+        self.NFAfinallbl.setText("NFA final states: ")
+
+        self.graphAlphalbl = QtWidgets.QLabel(self.frame)
+        self.graphAlphalbl.setGeometry(QtCore.QRect(10, 560, 300, 31))
+        self.graphAlphalbl.setText("alpha: ")
+
+        self.DFAstartlbl = QtWidgets.QLabel(self.frame)
+        self.DFAstartlbl.setGeometry(QtCore.QRect(10, 580, 300, 31))
+        self.DFAstartlbl.setText("DFA start state: ")
+
+        self.DFAfinallbl = QtWidgets.QLabel(self.frame)
+        self.DFAfinallbl.setGeometry(QtCore.QRect(10, 600, 300, 31))
+        self.DFAfinallbl.setText("DFA final states: ")
 
         self.line_2 = QtWidgets.QFrame(self.frame)
         self.line_2.setGeometry(QtCore.QRect(0, 680, 321, 16))
@@ -565,6 +610,7 @@ class Ui_MainWindow(object):
         self.pushButton_3 = QtWidgets.QPushButton(self.frame)
         self.pushButton_3.setGeometry(QtCore.QRect(50, 700, 211, 41))
         self.pushButton_3.setObjectName("pushButton_3")
+        self.pushButton_3.clicked.connect(lambda: self.convert())
 
         self.line_3 = QtWidgets.QFrame(self.frame)
         self.line_3.setGeometry(QtCore.QRect(0, 750, 321, 16))
@@ -590,13 +636,18 @@ class Ui_MainWindow(object):
         self.pixmap = QPixmap()
         self.imgLabel = QtWidgets.QLabel(self.NFAframe)
         self.imgLabel.setPixmap(self.pixmap)
-        self.imgLabel.setFixedSize(800,390)
+        self.imgLabel.setFixedSize(800, 390)
 
         self.DFAframe = QtWidgets.QFrame(self.centralwidget)
         self.DFAframe.setGeometry(QtCore.QRect(320, 390, 801, 401))
         self.DFAframe.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.DFAframe.setFrameShadow(QtWidgets.QFrame.Raised)
         self.DFAframe.setObjectName("DFAframe")
+
+        self.dfa_pixmap = QPixmap()
+        self.dfa_img_label = QtWidgets.QLabel(self.DFAframe)
+        self.dfa_img_label.setPixmap(self.dfa_pixmap)
+        self.dfa_img_label.setFixedSize(800, 390)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -609,11 +660,37 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.showWarning()
 
-    DFAgraph = graphviz.Digraph(comment='DFAgraph', format='png')
-    def addState(self,stateName):
-        self.DFAgraph.node(stateName)
-        self.DFAgraph.render(directory='doctest-output').replace('\\', '/')
+    def showWarning(self, extra=""):
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("Warning")
+        msg.setText("Very Important")
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setInformativeText("ADD ALL STATES BEFORE ADDING TRANSITIONS\n ALL STATE NAMES MUST HAVE CONSISTANT SIZE")
+        msg.setDetailedText(extra)
+        x = msg.exec_()
+
+    def showError(self, err_msg, extra=""):
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("Error")
+        msg.setText("Invalid Operation")
+        msg.setIcon(QtWidgets.QMessageBox.Critical)
+        msg.setInformativeText(err_msg)
+        msg.setDetailedText(extra)
+        x = msg.exec_()
+
+    NFAgraph = graphviz.Digraph(comment='NFAgraph', format='png')
+
+    def addState(self, stateName):
+        for state in NFA_and_ENFA_to_DFA.states:
+            if state == stateName:
+                self.showError("state already added")
+                return
+
+        NFA_and_ENFA_to_DFA.states.add(stateName)
+        self.NFAgraph.node(stateName)
+        self.NFAgraph.render(directory='doctest-output').replace('\\', '/')
         self.imgLabel.destroy()
         self.NFAframe.close()
 
@@ -628,26 +705,114 @@ class Ui_MainWindow(object):
         self.__timer.timeout.connect(ontimeout)
         self.__timer.start(2000)
 
-        print(self.DFAgraph)
+        print(self.NFAgraph)
 
-    def addTransition(self,state1,state2,transition):
-        self.DFAgraph.edge(state1,state2,label=transition)
-        self.DFAgraph.render(directory='doctest-output').replace('\\', '/')
-        self.imgLabel.destroy()
-        self.NFAframe.close()
+    def addTransition(self, state1, state2, transition):
+        try:
+            new_key = (state1, transition)
+            value = {state2}
+            for key in NFA_and_ENFA_to_DFA.transition.keys():
+                if key == new_key:
+                    value.update(NFA_and_ENFA_to_DFA.transition[key])
+
+            NFA_and_ENFA_to_DFA.transition[new_key] = value
+            print(NFA_and_ENFA_to_DFA.transition)
+            self.NFAgraph.edge(state1, state2, label=transition)
+            self.NFAgraph.render(directory='doctest-output').replace('\\', '/')
+            self.imgLabel.destroy()
+            self.NFAframe.close()
+
+            def ontimeout():
+                self.pixmap = QPixmap("doctest-output/Digraph.gv.png")
+                self.imgLabel.setPixmap(self.pixmap)
+                self.imgLabel.show()
+                self.NFAframe.show()
+                MainWindow.update()
+
+            self.__timer = QTimer()
+            self.__timer.timeout.connect(ontimeout)
+            self.__timer.start(2000)
+
+            print(self.NFAgraph)
+        except Exception as err:
+            print(str(err))
+
+    def set_start_state(self, start_state):
+        for state in NFA_and_ENFA_to_DFA.states:
+            if state == start_state:
+                NFA_and_ENFA_to_DFA.initialState = start_state
+                self.DFAstartlbl.setText(self.DFAstartlbl.text()+start_state)
+                self.NFAstartlbl.setText(self.NFAstartlbl.text()+start_state)
+                print(NFA_and_ENFA_to_DFA.initialState)
+                return
+
+        self.showError("state not found")
+
+    def set_final_state(self, final_state):
+        for state in NFA_and_ENFA_to_DFA.finalState:
+            if state == final_state:
+                self.showError("this final state is already set")
+                return
+        for state in NFA_and_ENFA_to_DFA.states:
+            if state == final_state:
+                NFA_and_ENFA_to_DFA.finalState.add(final_state)
+                self.DFAfinallbl.setText(self.DFAfinallbl.text()+final_state+" ")
+                print(NFA_and_ENFA_to_DFA.finalState)
+                return
+
+        self.showError("state not found")
+
+    def set_alpha(self, alpha_input):
+
+        for alpha in NFA_and_ENFA_to_DFA.alpha:
+            if alpha == alpha_input:
+                self.showError("this alpha is already set")
+                return
+
+        if len(NFA_and_ENFA_to_DFA.alpha) == 2:
+            self.showError("no more can be added")
+            return
+        self.graphAlphalbl.setText(self.graphAlphalbl.text()+alpha_input+" ")
+        NFA_and_ENFA_to_DFA.alpha.add(alpha_input)
+        print(NFA_and_ENFA_to_DFA.alpha)
+
+    def convert(self):
+        if Epsilon_NFA_flag == 1:
+            output, dfa_final_states = NFA_and_ENFA_to_DFA.ENFA_DFA(NFA_and_ENFA_to_DFA.transition,
+                                                                    NFA_and_ENFA_to_DFA.states,
+                                                                    NFA_and_ENFA_to_DFA.initialState,
+                                                                    NFA_and_ENFA_to_DFA.finalState)
+        else:
+            output, dfa_final_states = NFA_and_ENFA_to_DFA.NFA_to_DFA(NFA_and_ENFA_to_DFA.states,
+                                                                      NFA_and_ENFA_to_DFA.alpha,
+                                                                      NFA_and_ENFA_to_DFA.transition,
+                                                                      NFA_and_ENFA_to_DFA.finalState,
+                                                                      NFA_and_ENFA_to_DFA.initialState)
+        for state in dfa_final_states:
+            self.DFAfinallbl.setText(self.DFAfinallbl.text() + state + " ")
+
+        print(dfa_final_states)
+        print(output)
+        DFAgraph = graphviz.Digraph(comment="DFAgraph", format="png")
+        for key in output:
+            for nextState in output[key]:
+                DFAgraph.edge(key[0],nextState, label=key[1])
+
+        print(DFAgraph)
+        DFAgraph.render(directory="DFA", view=True).replace('\\', '/')
+        self.dfa_img_label.destroy()
+        self.DFAframe.close()
 
         def ontimeout():
-            self.pixmap = QPixmap("doctest-output/Digraph.gv.png")
-            self.imgLabel.setPixmap(self.pixmap)
-            self.imgLabel.show()
-            self.NFAframe.show()
+            self.dfa_pixmap = QPixmap("DFA/Digraph.gv.png")
+            self.dfa_img_label.setPixmap(self.dfa_pixmap)
+            self.dfa_img_label.show()
+            self.DFAframe.show()
             MainWindow.update()
 
         self.__timer = QTimer()
         self.__timer.timeout.connect(ontimeout)
         self.__timer.start(2000)
-
-        print(self.DFAgraph)
 
 
     def retranslateUi(self, MainWindow):
@@ -664,11 +829,13 @@ class Ui_MainWindow(object):
         self.label_8.setText(_translate("MainWindow", "Final State:"))
         self.pushButton_2.setText(_translate("MainWindow", "Add"))
         self.pushButton_3.setText(_translate("MainWindow", "Convert to DFA"))
-        self.StartStateButton.setText(_translate("MainWindow", "Set Start State"))
-        self.FinalStateButton.setText(_translate("MainWindow", "Set Final State"))
+        self.StartStateButton.setText(_translate("MainWindow", "Set"))
+        self.FinalStateButton.setText(_translate("MainWindow", "Set"))
+
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_FirstWindow()
