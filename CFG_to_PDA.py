@@ -1,11 +1,11 @@
 #final
 from collections import defaultdict
 
-rules = []
+rules = ["S -> aSa|bSb|aPb|bPa","P -> aP|bP|#"]
 transitions = defaultdict(list)
-nonterm_userdef = []
-term_userdef = []
-start_symbol = ''
+nonterm_userdef = ['S','P']
+term_userdef = ['a','b']
+start_symbol = 'S'
 
 def grammarAugmentation(rules, nonterm_userdef,start_symbol):
     # newRules stores processed output rules
@@ -101,9 +101,11 @@ def Push_down(rules,nonterm_userdef,start_symbol,term_userdef):
         print("value:")
         print("pop,push,next state")
         print(transitions[tran])
+        for n in transitions[tran]:
+            print(n[2])
         print("----------------")
 def main():
-    print("Enter number of rules")
+    """print("Enter number of rules")
     num=int(input())
     print("rules")
     for i in range(num):
@@ -118,4 +120,6 @@ def main():
     print("start symbol")
     start_symbol=input()
     Push_down(rules,nonterm_userdef,start_symbol,term_userdef)
-main()
+    print(transitions[1])"""
+    Push_down(rules, nonterm_userdef, start_symbol, term_userdef)
+#main()
