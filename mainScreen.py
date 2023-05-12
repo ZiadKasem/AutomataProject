@@ -16,7 +16,6 @@ import NFA_and_ENFA_to_DFA
 
 import graphviz
 
-global Epsilon_NFA_flag
 Epsilon_NFA_flag = 0
 
 
@@ -264,11 +263,22 @@ class Ui_PDAscreen(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        self.showWarning()
+
     rules = []
     nonterm_userdef = []
     term_userdef = []
     start_symbol = ''
     symbol_set_flag = 0
+
+    def showWarning(self, extra=""):
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("Warning")
+        msg.setText("Very Important")
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setInformativeText("!! # symbolizes the epsilon!!")
+        msg.setDetailedText(extra)
+        x = msg.exec_()
 
     def showError(self, err_msg, extra=""):
         msg = QtWidgets.QMessageBox()
@@ -379,6 +389,7 @@ class Ui_SecondWindow(object):
 
     # the function that opens the graph window when any of the choices is clicked
     def directedButtonClick(self):
+        global Epsilon_NFA_flag
         Epsilon_NFA_flag = 0
         MainWindow.close()
         self.w = QtWidgets.QMainWindow()
@@ -387,6 +398,7 @@ class Ui_SecondWindow(object):
         self.w.show()
 
     def undirectedButtonClick(self):
+        global Epsilon_NFA_flag
         Epsilon_NFA_flag = 1
         MainWindow.close()
         self.w = QtWidgets.QMainWindow()
@@ -667,7 +679,7 @@ class Ui_MainWindow(object):
         msg.setWindowTitle("Warning")
         msg.setText("Very Important")
         msg.setIcon(QtWidgets.QMessageBox.Information)
-        msg.setInformativeText("ADD ALL STATES BEFORE ADDING TRANSITIONS\n ALL STATE NAMES MUST HAVE CONSISTANT SIZE")
+        msg.setInformativeText("ADD ALL STATES BEFORE ADDING TRANSITIONS\n ALL STATE NAMES MUST HAVE CONSISTANT SIZE\n!! ^ symbolizes the epsilon!!")
         msg.setDetailedText(extra)
         x = msg.exec_()
 

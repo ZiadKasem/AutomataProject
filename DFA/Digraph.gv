@@ -1,9 +1,7 @@
 // DFAgraph
 digraph {
-	a -> bc [label=1]
-	c -> Dead [label=0]
-	c -> Dead [label=1]
-	a -> Dead [label=0]
-	bc -> c [label=0]
-	bc -> Dead [label=1]
+	q0q1q2 -> q0q1q2 [label=b]
+	q0q1q2 -> q1q2 [label=a]
+	q1q2 -> q0q1q2 [label=b]
+	q1q2 -> q1q2 [label=a]
 }
